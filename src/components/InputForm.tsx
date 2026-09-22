@@ -1,8 +1,94 @@
-import type { ChangeEvent } from "react";
+import { useEffect, useState, type InputHTMLAttributes } from "react";
 import { METHOD_ORDER, METHOD_SHORT_LABELS, USE_PATTERN_LABELS } from "../lib/defaults";
 import { validateInputs } from "../lib/validate";
 import type { CaseInputs, CaseNotice, ConsumptionMethod, UsePattern } from "../lib/pk/types";
 import { ArcPicker } from "./ArcPicker";
+
+type NumberFieldExtras = Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type">;
+
+/**
+ * A number input that isn't fully controlled by the parsed numeric value.
+ * A plain `<input type="number" value={n} onChange={e => set(Number(e.target.value))}>`
+ * can never actually be cleared: as soon as the field becomes empty,
+ * `Number("")` is `0`, not `NaN`, so the parent's numeric state snaps to 0
+ * and the input re-renders showing "0" — backspacing further does nothing
+ * visible, so the field feels stuck. This keeps its own text buffer so the
+ * field can be freely emptied/edited while focused, and only commits (and
+ * re-syncs to the canonical value) once the text is a real, different number
+ * or the field loses focus.
+ */
+function NumberField({ value, onChange, ...rest }: { value: number; onChange: (n: number) => void } & NumberFieldExtras) {
+  const [text, setText] = useState(String(value));
+
+  // Re-sync the displayed text when `value` changes for a reason other than
+  // this field's own typing (e.g. a reset, or another control changing it).
+  // Only overwrites `text` when it doesn't already represent `value`, so
+  // in-progress typing that hasn't committed yet (empty, "-", trailing ".")
+  // isn't clobbered on every keystroke's own round-trip through the parent.
+  useEffect(() => {
+    setText((prev) => {
+      const parsed = Number(prev);
+      if (prev === "" || !Number.isFinite(parsed) || parsed !== value) return String(value);
+      return prev;
+    });
+  }, [value]);
+
+  return (
+    <input
+      type="number"
+      inputMode="decimal"
+      value={text}
+      onChange={(e) => {
+        const raw = e.target.value;
+        setText(raw);
+        if (raw === "" || raw === "-" || raw.endsWith(".")) return;
+        const n = Number(raw);
+        if (Number.isFinite(n)) onChange(n);
+      }}
+      onBlur={() => setText(String(value))}
+      {...rest}
+    />
+  );
+}
+
+/** Same idea as NumberField, for the one input whose domain value can be null (not "not yet entered" = 0). */
+function NullableNumberField({
+  value,
+  onChange,
+  ...rest
+}: { value: number | null; onChange: (n: number | null) => void } & NumberFieldExtras) {
+  const [text, setText] = useState(value == null ? "" : String(value));
+
+  useEffect(() => {
+    setText((prev) => {
+      if (value == null) return prev === "" ? prev : "";
+      const parsed = Number(prev);
+      if (prev === "" || !Number.isFinite(parsed) || parsed !== value) return String(value);
+      return prev;
+    });
+  }, [value]);
+
+  return (
+    <input
+      type="number"
+      inputMode="decimal"
+      value={text}
+      onChange={(e) => {
+        const raw = e.target.value;
+        setText(raw);
+        if (raw === "") {
+          onChange(null);
+          return;
+        }
+        if (raw === "-" || raw.endsWith(".")) return;
+        const n = Number(raw);
+        if (Number.isFinite(n)) onChange(n);
+      }}
+      onBlur={() => setText(value == null ? "" : String(value))}
+      {...rest}
+    />
+  );
+}
 
 interface Props {
   inputs: CaseInputs;
@@ -42,8 +128,6 @@ const inputErrorCls =
 export function InputForm({ inputs, onChange }: Props) {
   const set = <K extends keyof CaseInputs>(key: K, value: CaseInputs[K]) => onChange({ ...inputs, [key]: value });
 
-  const num = (e: ChangeEvent<HTMLInputElement>) => Number(e.target.value);
-
   const issues = validateInputs(inputs);
   const issueFor = (field: keyof CaseInputs) => issues.find((i) => i.field === field);
   const clsFor = (field: keyof CaseInputs) => (issueFor(field)?.severity === "error" ? inputErrorCls : inputCls);
@@ -80,14 +164,13 @@ export function InputForm({ inputs, onChange }: Props) {
             hint="Labelled or estimated total THC content of the edible."
             notice={issueFor("doseMg")}
           >
-            <input
-              type="number"
+            <NumberField
               min={0}
               step={0.5}
               className={clsFor("doseMg")}
               aria-invalid={issueFor("doseMg")?.severity === "error"}
               value={inputs.doseMg}
-              onChange={(e) => set("doseMg", num(e))}
+              onChange={(n) => set("doseMg", n)}
             />
           </Field>
         ) : (
@@ -97,14 +180,13 @@ export function InputForm({ inputs, onChange }: Props) {
               hint="Total herbal material / concentrate smoked or vaporized in this session."
               notice={issueFor("amountGrams")}
             >
-              <input
-                type="number"
+              <NumberField
                 min={0}
                 step={0.05}
                 className={clsFor("amountGrams")}
                 aria-invalid={issueFor("amountGrams")?.severity === "error"}
                 value={inputs.amountGrams}
-                onChange={(e) => set("amountGrams", num(e))}
+                onChange={(n) => set("amountGrams", n)}
               />
             </Field>
             <Field
@@ -112,15 +194,14 @@ export function InputForm({ inputs, onChange }: Props) {
               hint="UK herbal cannabis is commonly 10–25%; resin typically lower, concentrates much higher."
               notice={issueFor("potencyPercent")}
             >
-              <input
-                type="number"
+              <NumberField
                 min={0}
                 max={100}
                 step={0.5}
                 className={clsFor("potencyPercent")}
                 aria-invalid={issueFor("potencyPercent")?.severity === "error"}
                 value={inputs.potencyPercent}
-                onChange={(e) => set("potencyPercent", num(e))}
+                onChange={(n) => set("potencyPercent", n)}
               />
             </Field>
           </>
@@ -170,16 +251,13 @@ export function InputForm({ inputs, onChange }: Props) {
         <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">Laboratory result</h2>
 
         <Field label="Measured THC concentration at T2 (ng/mL)" hint="Leave blank if not yet available — the tool will still show the prior predictive range.">
-          <input
-            type="number"
+          <NullableNumberField
             min={0}
             step={0.1}
             className={inputCls}
-            value={inputs.measuredConcentrationNgMl ?? ""}
+            value={inputs.measuredConcentrationNgMl}
             placeholder="Not available"
-            onChange={(e) =>
-              set("measuredConcentrationNgMl", e.target.value === "" ? null : Number(e.target.value))
-            }
+            onChange={(n) => set("measuredConcentrationNgMl", n)}
           />
         </Field>
 
@@ -205,15 +283,14 @@ export function InputForm({ inputs, onChange }: Props) {
         <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">Individual variables</h2>
 
         <Field label="Body weight (kg)" notice={issueFor("bodyWeightKg")}>
-          <input
-            type="number"
+          <NumberField
             min={30}
             max={200}
             step={1}
             className={clsFor("bodyWeightKg")}
             aria-invalid={issueFor("bodyWeightKg")?.severity === "error"}
             value={inputs.bodyWeightKg}
-            onChange={(e) => set("bodyWeightKg", num(e))}
+            onChange={(n) => set("bodyWeightKg", n)}
           />
         </Field>
 
