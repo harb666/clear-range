@@ -18,24 +18,27 @@ export function RangeSummary({ result }: Props) {
   return (
     <div className="rounded-lg border border-[var(--border-hairline)] bg-[var(--surface-1)] p-5">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
-        Estimated THC concentration at the activity time (T1)
+        Modelled THC estimate at the activity time (T1)
       </h2>
+      <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+        A statistical output from a pharmacokinetic model — not a laboratory measurement of this person at this time.
+      </p>
 
-      <div className="mt-3 flex flex-wrap items-end gap-x-8 gap-y-3">
+      <div className="mt-4 flex flex-wrap items-end gap-x-8 gap-y-3">
         <div>
-          <div className="text-xs text-[var(--text-muted)]">Median estimate</div>
+          <div className="text-xs text-[var(--text-muted)]">Central estimate (median)</div>
           <div className="text-3xl font-semibold text-[var(--text-primary)]">
-            {formatNgMl(atActivityTime.p50)} <span className="text-base font-normal text-[var(--text-secondary)]">ng/mL</span>
+            ≈ {formatNgMl(atActivityTime.p50)} <span className="text-base font-normal text-[var(--text-secondary)]">ng/mL</span>
           </div>
         </div>
         <div>
-          <div className="text-xs text-[var(--text-muted)]">50% credible interval</div>
+          <div className="text-xs text-[var(--text-muted)]">Likely range (50% credible interval)</div>
           <div className="text-lg text-[var(--text-primary)]">
             {formatNgMl(atActivityTime.p25)}–{formatNgMl(atActivityTime.p75)} ng/mL
           </div>
         </div>
         <div>
-          <div className="text-xs text-[var(--text-muted)]">90% credible interval</div>
+          <div className="text-xs text-[var(--text-muted)]">Wider plausible range (90% credible interval)</div>
           <div className="text-lg text-[var(--text-primary)]">
             {formatNgMl(atActivityTime.p05)}–{formatNgMl(atActivityTime.p95)} ng/mL
           </div>
@@ -47,10 +50,12 @@ export function RangeSummary({ result }: Props) {
       </p>
 
       <p className="mt-3 text-xs leading-relaxed text-[var(--text-muted)]">
-        This is a probabilistic estimate from a pharmacokinetic model, not a measurement. It reflects genuine, well-documented
-        variability between individuals in cannabinoid absorption and elimination{calibrated ? ", combined with the measured laboratory result" : ""}.
-        It cannot establish an exact historical blood THC concentration, and it does not determine whether any legal threshold
-        was or was not exceeded.
+        Report this as a <strong>modelled range</strong>, e.g. "approximately {formatNgMl(atActivityTime.p25)}–
+        {formatNgMl(atActivityTime.p75)} ng/mL", never as a single measured figure. It reflects genuine, well-documented
+        variability between individuals in cannabinoid absorption and elimination
+        {calibrated ? ", combined with the measured laboratory result" : ""}. It cannot establish an exact historical blood
+        THC concentration, and it does not determine whether any legal threshold was or was not exceeded — a forensic blood
+        analysis is the only way to establish an actual measured concentration.
       </p>
     </div>
   );

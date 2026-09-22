@@ -2,9 +2,10 @@ import { METHOD_LABELS, USE_PATTERN_LABELS } from "../lib/defaults";
 import { formatDateTime, formatNgMl } from "../lib/format";
 import { CITATIONS } from "../lib/pk/citations";
 import type { EstimationResult } from "../lib/pk/types";
-import { AssumptionsPanel } from "./AssumptionsPanel";
 import { ConcentrationChart } from "./ConcentrationChart";
+import { ModelAssumptions } from "./ModelAssumptions";
 import { SensitivityChart } from "./SensitivityChart";
+import { Timeline } from "./Timeline";
 
 interface Props {
   result: EstimationResult;
@@ -48,10 +49,11 @@ export function ReportView({ result, onClose }: Props) {
         <h1 className="text-2xl font-semibold text-[var(--text-primary)]">ClearRange — THC blood-level estimation report</h1>
         <p className="mt-1 text-sm text-[var(--text-muted)]">Generated {generatedAt.toLocaleString("en-GB")}</p>
         <p className="mt-3 rounded-md bg-[var(--surface-page)] p-3 text-sm text-[var(--text-secondary)]">
-          This report presents a probabilistic, evidence-based estimate of plausible THC blood concentration at a stated past
-          time. It is not a measurement and does not establish an exact historical concentration or determine compliance with
-          any legal threshold. It should be interpreted alongside, and where appropriate reviewed by, a qualified forensic
-          toxicologist.
+          ClearRange provides a mathematical/statistical estimate — a plausible range, not a single definitive number — of THC
+          blood concentration at a stated past time. It cannot determine someone's actual historical blood THC concentration;
+          only a forensic blood analysis can establish an actual measured concentration. It does not determine compliance with
+          any legal threshold, and it is not a substitute for laboratory testing or professional forensic interpretation. It
+          should be interpreted alongside, and where appropriate reviewed by, a qualified forensic toxicologist.
         </p>
       </header>
 
@@ -80,21 +82,25 @@ export function ReportView({ result, onClose }: Props) {
 
       <section className="mb-6">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
-          Estimated result at the activity time (T1)
+          Modelled estimate at the activity time (T1)
         </h2>
+        <p className="mb-2 text-xs text-[var(--text-muted)]">
+          A statistical model output, not a measurement — report as a range, e.g. "approximately{" "}
+          {formatNgMl(result.atActivityTime.p25)}–{formatNgMl(result.atActivityTime.p75)} ng/mL", never as a single figure.
+        </p>
         <div className="grid grid-cols-3 gap-4 rounded-md border border-[var(--border-hairline)] p-4 text-center">
           <div>
-            <div className="text-xs text-[var(--text-muted)]">Median</div>
-            <div className="text-xl font-semibold">{formatNgMl(result.atActivityTime.p50)} ng/mL</div>
+            <div className="text-xs text-[var(--text-muted)]">Central estimate</div>
+            <div className="text-xl font-semibold">≈ {formatNgMl(result.atActivityTime.p50)} ng/mL</div>
           </div>
           <div>
-            <div className="text-xs text-[var(--text-muted)]">50% interval</div>
+            <div className="text-xs text-[var(--text-muted)]">50% credible interval</div>
             <div className="text-xl font-semibold">
               {formatNgMl(result.atActivityTime.p25)}–{formatNgMl(result.atActivityTime.p75)}
             </div>
           </div>
           <div>
-            <div className="text-xs text-[var(--text-muted)]">90% interval</div>
+            <div className="text-xs text-[var(--text-muted)]">90% credible interval</div>
             <div className="text-xl font-semibold">
               {formatNgMl(result.atActivityTime.p05)}–{formatNgMl(result.atActivityTime.p95)}
             </div>
@@ -110,6 +116,28 @@ export function ReportView({ result, onClose }: Props) {
       </section>
 
       <section className="mb-6 break-inside-avoid">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">Timeline</h2>
+        <Timeline result={result} />
+      </section>
+
+      <section className="mb-6">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+          Explain this result
+        </h2>
+        <div className="space-y-3">
+          {result.explanation.map((f) => (
+            <div key={f.key} className="border-l-2 border-[var(--series-1)]/30 pl-3 text-sm">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+                <span className="font-medium text-[var(--text-primary)]">{f.label}</span>
+                <span className="text-[var(--text-secondary)]">{f.value}</span>
+              </div>
+              <p className="mt-0.5 text-xs text-[var(--text-muted)]">{f.detail}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-6 break-inside-avoid">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
           Sensitivity to assumptions
         </h2>
@@ -118,9 +146,9 @@ export function ReportView({ result, onClose }: Props) {
 
       <section className="mb-6">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
-          Assumptions, model &amp; evidence
+          Model, assumptions &amp; evidence
         </h2>
-        <AssumptionsPanel result={result} />
+        <ModelAssumptions result={result} />
       </section>
 
       <footer className="mt-8 border-t border-[var(--border-hairline)] pt-3 text-xs text-[var(--text-muted)]">

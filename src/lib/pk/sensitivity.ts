@@ -63,7 +63,7 @@ export function runSensitivity(inputs: CaseInputs): SensitivityRow[] {
     });
   }
 
-  const patternOrder: UsePattern[] = ["occasional", "moderate", "frequent"];
+  const patternOrder: UsePattern[] = ["single", "occasional", "moderate", "frequent"];
   const lowPattern = patternOrder[0];
   const highPattern = patternOrder[patternOrder.length - 1];
   rows.push({
@@ -71,8 +71,8 @@ export function runSensitivity(inputs: CaseInputs): SensitivityRow[] {
     low: medianAtActivity({ ...inputs, usePattern: lowPattern }),
     base: medianAtActivity(inputs),
     high: medianAtActivity({ ...inputs, usePattern: highPattern }),
-    lowLabel: "Occasional user",
-    highLabel: "Frequent user",
+    lowLabel: "Single/occasional use",
+    highLabel: "Regular/daily use",
   });
 
   const lowWeight = Math.max(35, inputs.bodyWeightKg - 15);
