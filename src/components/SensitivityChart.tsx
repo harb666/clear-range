@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatNgMl } from "../lib/format";
 import type { SensitivityRow } from "../lib/pk/types";
@@ -26,6 +27,24 @@ function TooltipContent({ active, payload }: any) {
 }
 
 export function SensitivityChart({ rows }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(600);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width;
+      if (width) setContainerWidth(width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // A narrow (phone-width) card needs a narrower label column so the bars
+  // themselves stay legible, at the cost of more label wrapping.
+  const labelWidth = Math.round(Math.min(220, Math.max(110, containerWidth * 0.38)));
+
   const prepared = rows
     .map((r) => ({
       ...r,
@@ -38,20 +57,19 @@ export function SensitivityChart({ rows }: Props) {
   const height = Math.max(160, prepared.length * 54);
 
   return (
-    <div>
+    <div ref={containerRef}>
       <ResponsiveContainer width="100%" height={height}>
-        <BarChart data={prepared} layout="vertical" margin={{ top: 4, right: 24, bottom: 4, left: 4 }}>
+        <BarChart data={prepared} layout="vertical" margin={{ top: 4, right: 16, bottom: 4, left: 4 }}>
           <CartesianGrid stroke="var(--border-hairline)" horizontal={false} />
           <XAxis
             type="number"
             stroke="var(--text-muted)"
             tick={{ fill: "var(--text-muted)", fontSize: 11 }}
-            label={{ value: "Median THC at T1, ng/mL", position: "insideBottom", offset: -4, fill: "var(--text-muted)", fontSize: 11 }}
           />
           <YAxis
             type="category"
             dataKey="inputLabel"
-            width={220}
+            width={labelWidth}
             stroke="var(--text-muted)"
             tick={{ fill: "var(--text-secondary)", fontSize: 12 }}
           />
@@ -65,8 +83,8 @@ export function SensitivityChart({ rows }: Props) {
         </BarChart>
       </ResponsiveContainer>
       <p className="mt-1 text-xs text-[var(--text-muted)]">
-        Each bar spans the median T1 estimate produced by the labelled low/high alternative for that single input, holding
-        everything else fixed. Longer bars mean the result is more sensitive to that assumption.
+        Horizontal axis: median THC at T1, ng/mL. Each bar spans the estimate produced by the labelled low/high alternative for
+        that single input, holding everything else fixed — longer bars mean the result is more sensitive to that assumption.
       </p>
     </div>
   );

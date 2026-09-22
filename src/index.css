@@ -81,6 +81,32 @@ body {
   background: var(--surface-page);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  /* Prevent Safari's overscroll bounce revealing a white gap past the page background. */
+  overscroll-behavior-y: none;
+}
+
+/* Safe-area insets: matter once installed to the iPhone home screen, where
+   there is no Safari chrome to absorb the notch / home-indicator area. */
+.safe-top {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+.safe-bottom {
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+.safe-x {
+  padding-left: max(1.5rem, env(safe-area-inset-left));
+  padding-right: max(1.5rem, env(safe-area-inset-right));
+}
+
+/* iOS Safari renders number/date inputs with a small tap target by default;
+   bump the minimum touch height across the app's form controls. */
+input,
+select,
+button {
+  min-height: 44px;
+}
+input[type="range"] {
+  min-height: 24px;
 }
 
 @media print {

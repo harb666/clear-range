@@ -25,8 +25,8 @@ export function ReportView({ result, onClose }: Props) {
   const generatedAt = new Date();
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-8">
-      <div className="no-print mb-6 flex items-center justify-between">
+    <div className="safe-top safe-bottom safe-x mx-auto max-w-3xl py-8">
+      <div className="no-print mb-2 flex flex-wrap items-center justify-between gap-3">
         <button
           onClick={onClose}
           className="rounded-md border border-[var(--border-strong)] px-3 py-1.5 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-page)]"
@@ -35,11 +35,14 @@ export function ReportView({ result, onClose }: Props) {
         </button>
         <button
           onClick={() => window.print()}
-          className="rounded-md bg-[var(--brand)] px-4 py-1.5 text-sm font-medium text-white hover:opacity-90"
+          className="rounded-md bg-[var(--brand)] px-4 py-1.5 text-sm font-medium text-white hover:opacity-90 active:opacity-80"
         >
           Print / Save as PDF
         </button>
       </div>
+      <p className="no-print mb-6 text-xs text-[var(--text-muted)]">
+        On iPhone: tap Print, then pinch-open the page preview and use the Share button to save it as a PDF or send it directly.
+      </p>
 
       <header className="mb-6 border-b border-[var(--border-strong)] pb-4">
         <h1 className="text-2xl font-semibold text-[var(--text-primary)]">ClearRange — THC blood-level estimation report</h1>

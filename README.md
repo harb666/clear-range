@@ -50,6 +50,30 @@ type-checks.
 - `src/hooks/useEstimation.ts` — wires form state to the engine with a short
   debounce so changing an assumption updates the result live.
 
+## Using it on an iPhone
+
+ClearRange is a installable web app (PWA), not an App Store app — there is no
+native iMessage extension here (that needs Xcode/Swift and Apple Developer
+Program enrolment, which this project doesn't have). Once deployed to a
+public URL:
+
+1. Open the URL in Safari on the iPhone.
+2. Tap the Share icon → **Add to Home Screen**. It then launches full-screen
+   with its own icon, like a native app, and works offline after the first
+   load (via the service worker configured in `vite.config.ts`).
+3. To send it to someone: Share → **Messages**. iMessage shows a rich link
+   preview (title/description/image) using the Open Graph tags in
+   `index.html` and `public/og-image.png`.
+
+Regenerate the app icons / OG image after changing the brand mark with:
+
+```bash
+node scripts/generate-icons.mjs
+```
+
+(edits `scripts/icon-source.svg`, `scripts/icon-maskable.svg`, and
+`scripts/og-image.svg` — requires the `sharp` dev dependency.)
+
 ## Disclaimer
 
 ClearRange is a prototype decision-support tool. Its default parameters are

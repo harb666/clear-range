@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import { UK_THC_SPECIFIED_LIMIT_NG_ML } from "../lib/defaults";
-import { formatHours, formatNgMl } from "../lib/format";
+import { formatHours, formatHoursCompact, formatNgMl } from "../lib/format";
 import type { EstimationResult } from "../lib/pk/types";
 
 interface Props {
@@ -61,16 +61,24 @@ export function ConcentrationChart({ result }: Props) {
   const tickStep = Math.pow(10, Math.floor(Math.log10(Math.max(rawMaxY, 1)))) / 2 || 1;
   const maxY = Math.ceil(rawMaxY / tickStep) * tickStep;
 
+  // Fixed, small tick count so labels never crowd on a narrow (phone-width) chart.
+  const horizonH = data[data.length - 1]?.hoursSinceUse ?? 1;
+  const xTicks = Array.from({ length: 5 }, (_, i) => Math.round(((horizonH * i) / 4) * 100) / 100);
+
   return (
     <div>
       <ResponsiveContainer width="100%" height={340}>
-        <AreaChart data={data} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
+        <AreaChart data={data} margin={{ top: 26, right: 20, bottom: 10, left: 0 }}>
           <CartesianGrid stroke="var(--border-hairline)" vertical={false} />
           <XAxis
             dataKey="hoursSinceUse"
+            type="number"
+            domain={[0, horizonH]}
+            ticks={xTicks}
+            interval={0}
             stroke="var(--text-muted)"
             tick={{ fill: "var(--text-muted)", fontSize: 12 }}
-            tickFormatter={(h) => formatHours(h)}
+            tickFormatter={(h) => formatHoursCompact(h)}
             label={{ value: "Time since use", position: "insideBottom", offset: -6, fill: "var(--text-muted)", fontSize: 12 }}
           />
           <YAxis
@@ -115,13 +123,13 @@ export function ConcentrationChart({ result }: Props) {
             x={Math.round(activityH * 100) / 100}
             stroke="var(--text-secondary)"
             strokeDasharray="4 3"
-            label={{ value: "T1: activity", position: "top", fill: "var(--text-secondary)", fontSize: 11 }}
+            label={{ value: "T1", position: "top", fill: "var(--text-secondary)", fontSize: 11 }}
           />
           <ReferenceLine
             x={Math.round(bloodDrawH * 100) / 100}
             stroke="var(--text-secondary)"
             strokeDasharray="4 3"
-            label={{ value: "T2: blood draw", position: "top", fill: "var(--text-secondary)", fontSize: 11 }}
+            label={{ value: "T2", position: "top", fill: "var(--text-secondary)", fontSize: 11 }}
           />
           {inputs.measuredConcentrationNgMl != null && (
             <ReferenceDot
@@ -133,17 +141,7 @@ export function ConcentrationChart({ result }: Props) {
               strokeWidth={2}
             />
           )}
-          <ReferenceLine
-            y={UK_THC_SPECIFIED_LIMIT_NG_ML}
-            stroke="var(--text-muted)"
-            strokeDasharray="2 4"
-            label={{
-              value: "UK specified limit (2 µg/L) — context only",
-              position: "insideTopRight",
-              fill: "var(--text-muted)",
-              fontSize: 10,
-            }}
-          />
+          <ReferenceLine y={UK_THC_SPECIFIED_LIMIT_NG_ML} stroke="var(--text-muted)" strokeDasharray="2 4" />
         </AreaChart>
       </ResponsiveContainer>
       <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-[var(--text-secondary)]">
@@ -165,7 +163,15 @@ export function ConcentrationChart({ result }: Props) {
             Measured lab value at T2
           </span>
         )}
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            className="inline-block h-0 w-3.5 border-t-2 border-dotted"
+            style={{ borderColor: "var(--text-muted)" }}
+          />
+          UK specified limit (2 µg/L) — context only, not a compliance determination
+        </span>
       </div>
+      <p className="mt-1 text-xs text-[var(--text-muted)]">T1 = time of driving/activity. T2 = time of blood collection.</p>
     </div>
   );
 }

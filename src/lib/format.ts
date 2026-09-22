@@ -23,3 +23,10 @@ export function formatHours(h: number): string {
   const mins = Math.round((h - whole) * 60);
   return mins === 0 ? `${whole} h` : `${whole} h ${mins} min`;
 }
+
+/** Compact form for tight spaces (chart axis ticks): "45m", "1.5h", "6h". */
+export function formatHoursCompact(h: number): string {
+  if (h < 1) return `${Math.round(h * 60)}m`;
+  const rounded = Math.round(h * 10) / 10;
+  return Number.isInteger(rounded) ? `${rounded}h` : `${rounded.toFixed(1)}h`;
+}
