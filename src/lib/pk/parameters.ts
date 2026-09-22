@@ -85,6 +85,21 @@ export const ROUTE_PRIORS: Record<ConsumptionMethod, RouteAbsorptionPrior> = {
 };
 
 export const USE_PATTERN_PRIORS: Record<UsePattern, UsePatternPrior> = {
+  // "single" reuses the occasional-user parameter set exactly. The cited
+  // literature does not report a kinetic profile for a first-time/naive
+  // user that is distinct from an occasional user's, so treating them
+  // identically is the honest choice here — inventing a separate parameter
+  // set with no evidence behind it would be worse than not distinguishing
+  // them. See USE_PATTERN_DESCRIPTIONS below and the "single" case in the UI.
+  single: {
+    concentrationScaleMultiplier: 1.0,
+    kFastMedian: 1.3,
+    kFastCv: 0.35,
+    fastFractionMedian: 0.8,
+    fastFractionCv: 0.15,
+    kSlowMedian: Math.log(2) / 5,
+    kSlowCv: 0.5,
+  },
   occasional: {
     concentrationScaleMultiplier: 1.0,
     kFastMedian: 1.3,
@@ -143,3 +158,35 @@ export const SEX_KSLOW_MULTIPLIER: Record<"female" | "male" | "unspecified", num
 };
 
 export const MODEL_VERSION = "ClearRange PK prior v0.1 (literature-informed, unvalidated)";
+
+/**
+ * Plain-language absorption description per route, used by the "Explain
+ * this result" and Methodology views. Kept alongside the numeric priors
+ * they describe so the two can't drift out of sync.
+ */
+export const ROUTE_DESCRIPTIONS: Record<ConsumptionMethod, string> = {
+  "smoked-joint":
+    "Smoked (joint/roll-up): THC crosses into the bloodstream through the lungs almost immediately — modelled concentration rises to a peak within minutes of the start of smoking.",
+  "smoked-pipe-bong":
+    "Smoked (pipe/bong): pulmonary absorption as fast as a joint; modelled with a slightly higher delivered fraction, reflecting reduced combustion losses reported for water-pipe use.",
+  vaporized:
+    "Vaporized: pulmonary absorption at a similar speed to smoking; heating below combustion temperature is modelled as modestly increasing the fraction of THC delivered, consistent with the cited smoked-vs-vaporized comparison.",
+  "oral-edible":
+    "Oral (edible): THC must be absorbed through the gut and passes through the liver before reaching general circulation (first-pass metabolism) — modelled with slower, delayed, and much more variable absorption, and a substantially lower delivered fraction than inhaled routes.",
+};
+
+/**
+ * Plain-language use-pattern description, used the same way as
+ * ROUTE_DESCRIPTIONS. These describe MODELLING ASSUMPTIONS about elimination
+ * rate, not a diagnosis or a validated classification of any individual.
+ */
+export const USE_PATTERN_DESCRIPTIONS: Record<UsePattern, string> = {
+  single:
+    "Modelled identically to occasional use (see below) — the cited literature does not report a kinetic profile for a single/first-time use that is distinct from occasional use, so this category exists for labelling clarity, not because the underlying kinetics differ in the model.",
+  occasional:
+    "No regular recent use assumed. Modelled with the fastest average terminal clearance of the four categories, per the cited occasional-vs-frequent comparisons.",
+  moderate:
+    "Roughly weekly use assumed. Modelled with intermediate terminal clearance, between occasional and daily use.",
+  frequent:
+    "Near-daily or daily use assumed. Modelled with the slowest terminal clearance, reflecting THC's accumulation in fat tissue with repeated dosing. Frequent users can also carry a measurable pre-existing baseline from earlier sessions that this model does not separately represent.",
+};

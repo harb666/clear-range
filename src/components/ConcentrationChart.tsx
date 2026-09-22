@@ -12,14 +12,13 @@ import {
 } from "recharts";
 import { UK_THC_SPECIFIED_LIMIT_NG_ML } from "../lib/defaults";
 import { formatHours, formatHoursCompact, formatNgMl } from "../lib/format";
+import { hoursBetween } from "../lib/pk/simulate";
 import type { EstimationResult } from "../lib/pk/types";
 
 interface Props {
   result: EstimationResult;
-}
-
-function hoursBetween(fromIso: string, toIso: string): number {
-  return (new Date(toIso).getTime() - new Date(fromIso).getTime()) / (1000 * 60 * 60);
+  /** Elapsed hours since use to mark on the chart, e.g. from the Timeline scrubber. Omit for no marker. */
+  selectedHoursSinceUse?: number;
 }
 
 function TooltipContent({ active, payload, label }: any) {
@@ -41,7 +40,7 @@ function TooltipContent({ active, payload, label }: any) {
   );
 }
 
-export function ConcentrationChart({ result }: Props) {
+export function ConcentrationChart({ result, selectedHoursSinceUse }: Props) {
   const { inputs, curve } = result;
   const activityH = hoursBetween(inputs.useTime, inputs.activityTime);
   const bloodDrawH = hoursBetween(inputs.useTime, inputs.bloodDrawTime);
@@ -56,6 +55,11 @@ export function ConcentrationChart({ result }: Props) {
     bandOuter: Math.max(0, p.band.p95 - p.band.p05),
     bandInner: Math.max(0, p.band.p75 - p.band.p25),
   }));
+
+  const scrubPoint =
+    selectedHoursSinceUse != null
+      ? data.reduce((best, d) => (Math.abs(d.hoursSinceUse - selectedHoursSinceUse) < Math.abs(best.hoursSinceUse - selectedHoursSinceUse) ? d : best), data[0])
+      : null;
 
   const rawMaxY = Math.max(...data.map((d) => d.p95), UK_THC_SPECIFIED_LIMIT_NG_ML) * 1.1;
   const tickStep = Math.pow(10, Math.floor(Math.log10(Math.max(rawMaxY, 1)))) / 2 || 1;
@@ -142,6 +146,9 @@ export function ConcentrationChart({ result }: Props) {
             />
           )}
           <ReferenceLine y={UK_THC_SPECIFIED_LIMIT_NG_ML} stroke="var(--text-muted)" strokeDasharray="2 4" />
+          {scrubPoint && (
+            <ReferenceDot x={scrubPoint.hoursSinceUse} y={scrubPoint.p50} r={4} fill="var(--series-4)" stroke="var(--surface-1)" strokeWidth={1.5} />
+          )}
         </AreaChart>
       </ResponsiveContainer>
       <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-[var(--text-secondary)]">

@@ -41,14 +41,34 @@ type-checks.
 
 ## Architecture
 
-- `src/lib/pk/` — the estimation engine (types, priors, forward PK model,
-  Monte Carlo/calibration engine, sensitivity analysis). Framework-agnostic,
-  no UI dependencies.
-- `src/components/` — the input form, results dashboard (range summary,
-  concentration-over-time chart, sensitivity tornado chart, assumptions
-  panel), and the printable/exportable report view.
-- `src/hooks/useEstimation.ts` — wires form state to the engine with a short
-  debounce so changing an assumption updates the result live.
+Layered so the scientific model can be replaced or refitted without touching
+the UI (see `src/lib/pk/modelRegistry.ts` for the intended upgrade path):
+
+- **Inputs** — `CaseInputs` in `src/lib/pk/types.ts`; collected by
+  `src/components/InputForm.tsx`. `src/lib/validate.ts` does pre-simulation
+  sanity checks (e.g. a zero dose) independently of the model.
+- **Model / calculation engine** — `src/lib/pk/parameters.ts` (literature-
+  informed prior distributions, by route and pattern-of-use),
+  `src/lib/pk/sampleParameters.ts` (turns inputs + priors into one sampled
+  parameter set), `src/lib/pk/model.ts` (the forward concentration-time
+  equation for one parameter set). Framework-agnostic, no UI dependencies.
+- **Uncertainty handling** — `src/lib/pk/simulate.ts`: the Monte Carlo engine
+  and sampling-importance-resampling calibration against a measured lab
+  value. `src/lib/pk/random.ts` holds the sampling/quantile primitives.
+- **Results** — `src/lib/pk/estimate.ts` assembles the public `EstimationResult`
+  (credible intervals, sensitivity analysis, case notices) from the engine's
+  output; `src/lib/pk/explain.ts` derives the auditable "Explain this result"
+  breakdown from the same weighted simulation ensemble, and
+  `src/lib/pk/sensitivity.ts` runs the one-at-a-time sensitivity analysis.
+- **Visualisation** — `src/lib/timeline.ts` (derives phase boundaries from a
+  result's curve for the timeline view) plus the chart-building logic inside
+  `ConcentrationChart.tsx`, `Timeline.tsx`, and `SensitivityChart.tsx`.
+- **UI** — `src/components/` (input form, results dashboard — range summary,
+  concentration-over-time chart, timeline scrubber, "Explain this result",
+  sensitivity tornado chart, expandable "Model & assumptions" and "Technical
+  / methodology" sections — and the printable/exportable report view) and
+  `src/App.tsx`. `src/hooks/useEstimation.ts` wires form state to the engine
+  with a short debounce so changing an assumption updates the result live.
 
 ## Using it on an iPhone
 

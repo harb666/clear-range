@@ -36,9 +36,10 @@ export const METHOD_LABELS: Record<ConsumptionMethod, string> = {
 };
 
 export const USE_PATTERN_LABELS: Record<UsePattern, string> = {
-  occasional: "Occasional (no regular recent use)",
-  moderate: "Moderate (roughly weekly)",
-  frequent: "Frequent (daily / near-daily)",
+  single: "Single consumption event (isolated use)",
+  occasional: "Occasional use (no regular recent use)",
+  moderate: "Repeated use (roughly weekly)",
+  frequent: "Regular / daily use (near-daily or daily)",
 };
 
 /** UK Drug Driving (Specified Limits)(England and Wales) Regulations 2014 specified limit for THC, shown for context only. */

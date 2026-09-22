@@ -34,10 +34,12 @@ function App() {
             </button>
           </div>
           <p className="mt-2 max-w-4xl text-xs text-[var(--text-muted)]">
-            ClearRange estimates a <strong>plausible range</strong> of THC blood concentration at a past time — it does not
-            produce a single definitive number and does not determine whether a legal threshold was met. Individual THC
-            pharmacokinetics vary considerably; retrospective estimation from limited data cannot establish an exact historical
-            concentration. Every result shows its assumptions, evidence base, uncertainty, and sensitivity to those assumptions.
+            ClearRange provides a mathematical/statistical <strong>estimate</strong> — a plausible range, not a single
+            definitive number — of THC blood concentration at a past time. It cannot determine someone's actual historical
+            blood THC concentration; only a forensic blood analysis can establish an actual measured concentration. It does not
+            determine whether a legal threshold was met, and it is not a substitute for laboratory testing or professional
+            forensic interpretation. Individual pharmacokinetics vary substantially between people — every result shows its
+            assumptions, evidence base, uncertainty, and sensitivity to those assumptions.
           </p>
         </div>
       </header>

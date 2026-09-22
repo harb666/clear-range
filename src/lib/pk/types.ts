@@ -16,6 +16,9 @@ export type ConsumptionMethod =
   | "oral-edible";
 
 export type UsePattern =
+  /** One isolated use, no recent prior use. Modelled identically to
+   * "occasional" — see USE_PATTERN_DESCRIPTIONS in parameters.ts for why. */
+  | "single"
   /** No use in the preceding month; naive or near-naive tolerance. */
   | "occasional"
   /** Roughly weekly use. */
@@ -92,6 +95,29 @@ export interface CurvePoint {
   band: QuantileBand;
 }
 
+/**
+ * One entry in the "Explain this result" breakdown: a case input (or group
+ * of inputs) plus a plain-language account of how it shaped the estimate.
+ * `value` is a ready-to-display string rather than raw numbers so the
+ * results/UI layers don't need to duplicate unit formatting — but every
+ * number in it is read directly off the actual simulation ensemble
+ * (`RawSimulationOutput`), never invented for display purposes.
+ */
+export interface ExplanationFactor {
+  key: string;
+  label: string;
+  value: string;
+  detail: string;
+}
+
+/** A flagged issue with the case as entered, or a caveat about the result. */
+export interface CaseNotice {
+  severity: "error" | "warning";
+  message: string;
+  /** Case input field this notice is about, if any — lets the form highlight the specific field. */
+  field?: keyof CaseInputs;
+}
+
 export interface SensitivityRow {
   inputLabel: string;
   /** Median T1 estimate (ng/mL) with the input at its low sensitivity setting. */
@@ -119,5 +145,7 @@ export interface EstimationResult {
   /** Quantile band of concentration at the blood-draw time (T2), for comparison against the measured value. */
   atBloodDrawTime: QuantileBand;
   sensitivity: SensitivityRow[];
-  warnings: string[];
+  /** Auditable, per-factor account of how the inputs produced this result — see ExplanationFactor. */
+  explanation: ExplanationFactor[];
+  warnings: CaseNotice[];
 }

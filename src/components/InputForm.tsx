@@ -1,29 +1,51 @@
 import type { ChangeEvent } from "react";
 import { METHOD_LABELS, USE_PATTERN_LABELS } from "../lib/defaults";
-import type { CaseInputs, ConsumptionMethod, UsePattern } from "../lib/pk/types";
+import { validateInputs } from "../lib/validate";
+import type { CaseInputs, CaseNotice, ConsumptionMethod, UsePattern } from "../lib/pk/types";
 
 interface Props {
   inputs: CaseInputs;
   onChange: (next: CaseInputs) => void;
 }
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  hint,
+  notice,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  notice?: CaseNotice;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <span className="block text-sm font-medium text-[var(--text-primary)]">{label}</span>
       {children}
-      {hint && <span className="mt-1 block text-xs text-[var(--text-muted)]">{hint}</span>}
+      {notice && (
+        <span className={`mt-1 block text-xs ${notice.severity === "error" ? "text-[var(--status-critical)]" : "text-[var(--status-warning)]"}`}>
+          {notice.message}
+        </span>
+      )}
+      {hint && !notice && <span className="mt-1 block text-xs text-[var(--text-muted)]">{hint}</span>}
     </label>
   );
 }
 
 const inputCls =
   "mt-1 w-full rounded-md border border-[var(--border-strong)] bg-[var(--surface-1)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--brand)] focus:outline-none focus:ring-1 focus:ring-[var(--brand)]";
+const inputErrorCls =
+  "mt-1 w-full rounded-md border border-[var(--status-critical)] bg-[var(--surface-1)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--status-critical)] focus:outline-none focus:ring-1 focus:ring-[var(--status-critical)]";
 
 export function InputForm({ inputs, onChange }: Props) {
   const set = <K extends keyof CaseInputs>(key: K, value: CaseInputs[K]) => onChange({ ...inputs, [key]: value });
 
   const num = (e: ChangeEvent<HTMLInputElement>) => Number(e.target.value);
+
+  const issues = validateInputs(inputs);
+  const issueFor = (field: keyof CaseInputs) => issues.find((i) => i.field === field);
+  const clsFor = (field: keyof CaseInputs) => (issueFor(field)?.severity === "error" ? inputErrorCls : inputCls);
 
   return (
     <div className="space-y-6">
@@ -54,35 +76,50 @@ export function InputForm({ inputs, onChange }: Props) {
         </Field>
 
         {inputs.method === "oral-edible" ? (
-          <Field label="Estimated THC dose consumed (mg)" hint="Labelled or estimated total THC content of the edible.">
+          <Field
+            label="Estimated THC dose consumed (mg)"
+            hint="Labelled or estimated total THC content of the edible."
+            notice={issueFor("doseMg")}
+          >
             <input
               type="number"
               min={0}
               step={0.5}
-              className={inputCls}
+              className={clsFor("doseMg")}
+              aria-invalid={issueFor("doseMg")?.severity === "error"}
               value={inputs.doseMg}
               onChange={(e) => set("doseMg", num(e))}
             />
           </Field>
         ) : (
           <>
-            <Field label="Approximate amount consumed (grams)" hint="Total herbal material / concentrate smoked or vaporized in this session.">
+            <Field
+              label="Approximate amount consumed (grams)"
+              hint="Total herbal material / concentrate smoked or vaporized in this session."
+              notice={issueFor("amountGrams")}
+            >
               <input
                 type="number"
                 min={0}
                 step={0.05}
-                className={inputCls}
+                className={clsFor("amountGrams")}
+                aria-invalid={issueFor("amountGrams")?.severity === "error"}
                 value={inputs.amountGrams}
                 onChange={(e) => set("amountGrams", num(e))}
               />
             </Field>
-            <Field label="Estimated THC potency (% w/w)" hint="UK herbal cannabis is commonly 10–25%; resin typically lower, concentrates much higher.">
+            <Field
+              label="Estimated THC potency (% w/w)"
+              hint="UK herbal cannabis is commonly 10–25%; resin typically lower, concentrates much higher."
+              notice={issueFor("potencyPercent")}
+            >
               <input
                 type="number"
                 min={0}
                 max={100}
                 step={0.5}
-                className={inputCls}
+                className={clsFor("potencyPercent")}
+                aria-invalid={issueFor("potencyPercent")?.severity === "error"}
                 value={inputs.potencyPercent}
                 onChange={(e) => set("potencyPercent", num(e))}
               />
@@ -90,7 +127,10 @@ export function InputForm({ inputs, onChange }: Props) {
           </>
         )}
 
-        <Field label="Pattern of use" hint="Frequent users show materially slower terminal clearance in the cited literature.">
+        <Field
+          label="Pattern of use"
+          hint="A modelling category, not a diagnosis — it selects which elimination-rate assumptions apply. Regular/daily use is modelled with materially slower clearance than a single or occasional use."
+        >
           <select
             className={inputCls}
             value={inputs.usePattern}
@@ -165,13 +205,14 @@ export function InputForm({ inputs, onChange }: Props) {
       <section className="space-y-4 border-t border-[var(--border-hairline)] pt-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">Individual variables</h2>
 
-        <Field label="Body weight (kg)">
+        <Field label="Body weight (kg)" notice={issueFor("bodyWeightKg")}>
           <input
             type="number"
             min={30}
             max={200}
             step={1}
-            className={inputCls}
+            className={clsFor("bodyWeightKg")}
+            aria-invalid={issueFor("bodyWeightKg")?.severity === "error"}
             value={inputs.bodyWeightKg}
             onChange={(e) => set("bodyWeightKg", num(e))}
           />
