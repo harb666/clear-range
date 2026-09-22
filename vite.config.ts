@@ -3,8 +3,14 @@ import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// GitHub Pages serves this project at /clear-range/, not the domain root —
+// only apply that path prefix for production builds so `npm run dev` still
+// serves from `/`.
+const GITHUB_PAGES_BASE = '/clear-range/'
+
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? GITHUB_PAGES_BASE : '/',
   plugins: [
     react(),
     tailwindcss(),
@@ -38,4 +44,4 @@ export default defineConfig({
       },
     }),
   ],
-})
+}))
