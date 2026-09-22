@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+
+  --surface-1: #fcfcfb;
+  --surface-page: #f4f6f5;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --border-hairline: #e1e0d9;
+  --border-strong: #c3c2b7;
+
+  --brand: #1c5cab;
+  --brand-ink: #0d366b;
+
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --surface-page: #101211;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --border-hairline: #2c2c2a;
+    --border-strong: #383835;
+
+    --brand: #3987e5;
+    --brand-ink: #cde2fb;
+
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --surface-page: #101211;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --border-hairline: #2c2c2a;
+  --border-strong: #383835;
+
+  --brand: #3987e5;
+  --brand-ink: #cde2fb;
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--surface-page);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  /* Prevent Safari's overscroll bounce revealing a white gap past the page background. */
+  overscroll-behavior-y: none;
+}
+
+/* Safe-area insets: matter once installed to the iPhone home screen, where
+   there is no Safari chrome to absorb the notch / home-indicator area. */
+.safe-top {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+.safe-bottom {
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+.safe-x {
+  padding-left: max(1.5rem, env(safe-area-inset-left));
+  padding-right: max(1.5rem, env(safe-area-inset-right));
+}
+
+/* iOS Safari renders number/date inputs with a small tap target by default;
+   bump the minimum touch height across the app's form controls. */
+input,
+select,
+button {
+  min-height: 44px;
+}
+input[type="range"] {
+  min-height: 24px;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

@@ -1,0 +1,68 @@
+import { useState } from "react";
+import { InputForm } from "./components/InputForm";
+import { ReportView } from "./components/ReportView";
+import { ResultsPanel } from "./components/ResultsPanel";
+import { useEstimation } from "./hooks/useEstimation";
+import { defaultCaseInputs } from "./lib/defaults";
+import type { CaseInputs } from "./lib/pk/types";
+
+function App() {
+  const [inputs, setInputs] = useState<CaseInputs>(defaultCaseInputs);
+  const [view, setView] = useState<"form" | "report">("form");
+  const { result, isComputing } = useEstimation(inputs);
+
+  if (view === "report") {
+    return <ReportView result={result} onClose={() => setView("form")} />;
+  }
+
+  return (
+    <div className="min-h-screen">
+      <header className="safe-top no-print border-b border-[var(--border-hairline)] bg-[var(--surface-1)]">
+        <div className="safe-x mx-auto flex max-w-6xl flex-col gap-1 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="text-xl font-semibold text-[var(--text-primary)]">ClearRange</h1>
+              <p className="text-sm text-[var(--text-secondary)]">
+                Forensic THC blood-level estimation — UK-focused, evidence-based, probabilistic.
+              </p>
+            </div>
+            <button
+              onClick={() => setView("report")}
+              className="rounded-md bg-[var(--brand)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 active:opacity-80"
+            >
+              Export report
+            </button>
+          </div>
+          <p className="mt-2 max-w-4xl text-xs text-[var(--text-muted)]">
+            ClearRange estimates a <strong>plausible range</strong> of THC blood concentration at a past time — it does not
+            produce a single definitive number and does not determine whether a legal threshold was met. Individual THC
+            pharmacokinetics vary considerably; retrospective estimation from limited data cannot establish an exact historical
+            concentration. Every result shows its assumptions, evidence base, uncertainty, and sensitivity to those assumptions.
+          </p>
+        </div>
+      </header>
+
+      <main className="safe-x mx-auto grid max-w-6xl grid-cols-1 gap-6 py-6 lg:grid-cols-[360px_1fr]">
+        <div className="no-print rounded-lg border border-[var(--border-hairline)] bg-[var(--surface-1)] p-5 lg:sticky lg:top-6 lg:h-fit">
+          <InputForm inputs={inputs} onChange={setInputs} />
+        </div>
+
+        <div className="relative">
+          {isComputing && (
+            <div className="absolute right-0 top-0 rounded-full bg-[var(--surface-page)] px-2 py-0.5 text-xs text-[var(--text-muted)]">
+              Recalculating…
+            </div>
+          )}
+          <ResultsPanel result={result} />
+        </div>
+      </main>
+
+      <footer className="safe-bottom safe-x no-print mx-auto max-w-6xl text-xs text-[var(--text-muted)]">
+        ClearRange is a prototype decision-support tool. It is not a substitute for review by a qualified forensic
+        toxicologist, and it does not provide legal advice.
+      </footer>
+    </div>
+  );
+}
+
+export default App;

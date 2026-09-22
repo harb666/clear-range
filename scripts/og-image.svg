@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1c5cab"/>
+      <stop offset="1" stop-color="#123f78"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <g transform="translate(90,90)">
+    <rect width="108" height="108" rx="26" fill="#ffffff" fill-opacity="0.12"/>
+    <path d="M27 70 L52 34 L69 62 L80 42 L96 70"
+          fill="none" stroke="#ffffff" stroke-width="8"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <text x="90" y="300" font-family="DejaVu Sans, sans-serif" font-size="76" font-weight="700" fill="#ffffff">ClearRange</text>
+  <text x="90" y="360" font-family="DejaVu Sans, sans-serif" font-size="32" fill="#dce8f7">Forensic THC blood-level estimation</text>
+
+  <g font-family="DejaVu Sans, sans-serif" font-size="26" fill="#c7dbf3">
+    <text x="90" y="430">UK-focused · evidence-based · probabilistic</text>
+    <text x="90" y="472">Estimates a plausible range — never a single number.</text>
+  </g>
+
+  <g font-family="DejaVu Sans, sans-serif" font-size="22" fill="#8fb3dd">
+    <text x="90" y="560">Not a substitute for review by a qualified forensic toxicologist.</text>
+  </g>
+</svg>
