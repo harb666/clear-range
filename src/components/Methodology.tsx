@@ -20,7 +20,7 @@ const PATTERN_ORDER = ["single", "occasional", "moderate", "frequent"] as const;
 
 export function Methodology() {
   return (
-    <details className="rounded-lg border border-[var(--border-hairline)] bg-[var(--surface-1)] open:pb-5">
+    <details className="card-glass rounded-2xl border border-[var(--border-hairline)] bg-[var(--surface-1)] shadow-[0_20px_60px_-24px_rgba(0,0,0,0.6)] open:pb-5">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-5 [&::-webkit-details-marker]:hidden">
         <span>
           <span className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">

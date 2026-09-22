@@ -16,7 +16,7 @@ export function RangeSummary({ result }: Props) {
   const { atActivityTime, calibrated, calibrationFit } = result;
 
   return (
-    <div className="rounded-lg border border-[var(--border-hairline)] bg-[var(--surface-1)] p-5">
+    <div className="card-glass rounded-2xl border border-[var(--border-hairline)] bg-[var(--surface-1)] shadow-[0_20px_60px_-24px_rgba(0,0,0,0.6)] p-5">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
         Modelled THC estimate at the activity time (T1)
       </h2>

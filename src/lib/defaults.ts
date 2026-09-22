@@ -35,6 +35,16 @@ export const METHOD_LABELS: Record<ConsumptionMethod, string> = {
   "oral-edible": "Oral — edible / ingested",
 };
 
+/** Short chip text for the method-of-consumption dial picker. */
+export const METHOD_SHORT_LABELS: Record<ConsumptionMethod, string> = {
+  "smoked-joint": "Joint",
+  "smoked-pipe-bong": "Pipe / bong",
+  vaporized: "Vaporizer",
+  "oral-edible": "Edible",
+};
+
+export const METHOD_ORDER: ConsumptionMethod[] = ["smoked-joint", "smoked-pipe-bong", "vaporized", "oral-edible"];
+
 export const USE_PATTERN_LABELS: Record<UsePattern, string> = {
   single: "Single consumption event (isolated use)",
   occasional: "Occasional use (no regular recent use)",
