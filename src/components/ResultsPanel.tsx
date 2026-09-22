@@ -36,7 +36,7 @@ export function ResultsPanel({ result }: Props) {
 
       <RangeSummary result={result} />
 
-      <div className="rounded-lg border border-[var(--border-hairline)] bg-[var(--surface-1)] p-5">
+      <div className="card-glass rounded-2xl border border-[var(--border-hairline)] bg-[var(--surface-1)] shadow-[0_20px_60px_-24px_rgba(0,0,0,0.6)] p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
           Estimated THC concentration over time
         </h2>
@@ -45,7 +45,7 @@ export function ResultsPanel({ result }: Props) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-[var(--border-hairline)] bg-[var(--surface-1)] p-5">
+      <div className="card-glass rounded-2xl border border-[var(--border-hairline)] bg-[var(--surface-1)] shadow-[0_20px_60px_-24px_rgba(0,0,0,0.6)] p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">Timeline</h2>
         <p className="mt-1 text-xs text-[var(--text-muted)]">
           Drag to move through time since use and see how the modelled estimate changes. The marker also appears on the chart
@@ -58,7 +58,7 @@ export function ResultsPanel({ result }: Props) {
 
       <ExplainResult result={result} />
 
-      <div className="rounded-lg border border-[var(--border-hairline)] bg-[var(--surface-1)] p-5">
+      <div className="card-glass rounded-2xl border border-[var(--border-hairline)] bg-[var(--surface-1)] shadow-[0_20px_60px_-24px_rgba(0,0,0,0.6)] p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
           Sensitivity to assumptions
         </h2>
@@ -67,7 +67,7 @@ export function ResultsPanel({ result }: Props) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-[var(--border-hairline)] bg-[var(--surface-1)] p-5">
+      <div className="card-glass rounded-2xl border border-[var(--border-hairline)] bg-[var(--surface-1)] shadow-[0_20px_60px_-24px_rgba(0,0,0,0.6)] p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">Model &amp; assumptions</h2>
         <div className="mt-3">
           <ModelAssumptions result={result} />

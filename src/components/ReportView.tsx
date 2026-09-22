@@ -26,7 +26,7 @@ export function ReportView({ result, onClose }: Props) {
   const generatedAt = new Date();
 
   return (
-    <div className="safe-top safe-bottom safe-x mx-auto max-w-3xl py-8">
+    <div data-theme="light" className="safe-top safe-bottom safe-x mx-auto max-w-3xl bg-[var(--surface-page)] py-8">
       <div className="no-print mb-2 flex flex-wrap items-center justify-between gap-3">
         <button
           onClick={onClose}

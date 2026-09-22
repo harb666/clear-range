@@ -1,7 +1,8 @@
 import type { ChangeEvent } from "react";
-import { METHOD_LABELS, USE_PATTERN_LABELS } from "../lib/defaults";
+import { METHOD_ORDER, METHOD_SHORT_LABELS, USE_PATTERN_LABELS } from "../lib/defaults";
 import { validateInputs } from "../lib/validate";
 import type { CaseInputs, CaseNotice, ConsumptionMethod, UsePattern } from "../lib/pk/types";
+import { ArcPicker } from "./ArcPicker";
 
 interface Props {
   inputs: CaseInputs;
@@ -61,19 +62,17 @@ export function InputForm({ inputs, onChange }: Props) {
           />
         </Field>
 
-        <Field label="Method of consumption">
-          <select
-            className={inputCls}
-            value={inputs.method}
-            onChange={(e) => set("method", e.target.value as ConsumptionMethod)}
-          >
-            {(Object.keys(METHOD_LABELS) as ConsumptionMethod[]).map((m) => (
-              <option key={m} value={m}>
-                {METHOD_LABELS[m]}
-              </option>
-            ))}
-          </select>
-        </Field>
+        <div>
+          <span className="block text-sm font-medium text-[var(--text-primary)]">Method of consumption</span>
+          <div className="mt-1">
+            <ArcPicker
+              ariaLabel="Method of consumption"
+              value={inputs.method}
+              onChange={(v) => set("method", v as ConsumptionMethod)}
+              options={METHOD_ORDER.map((m) => ({ value: m, label: METHOD_SHORT_LABELS[m] }))}
+            />
+          </div>
+        </div>
 
         {inputs.method === "oral-edible" ? (
           <Field
